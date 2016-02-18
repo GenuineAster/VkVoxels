@@ -60,7 +60,7 @@ int main()
 	// List available devices
 	{
 		// Get device count
-		uint32_t phys_device_count;
+		uint32_t phys_device_count = 0;
 		vkEnumeratePhysicalDevices(instance, &phys_device_count, NULL);
 
 		// Get devices
@@ -69,11 +69,27 @@ int main()
 
 		// Iterate over devices
 		for (const auto &phys_device : phys_devices) {
+			std::cout << "Found physical device!" << std::endl;
 			VkPhysicalDeviceProperties phys_device_props;
 			vkGetPhysicalDeviceProperties(phys_device, &phys_device_props);
-
-			std::cout << "Found physical device!" << std::endl;
 			std::cout << phys_device_props << std::endl;
+
+
+			std::cout << "Device Queue Families:" << std::endl;
+
+			// Get Queue count
+			uint32_t queue_count = 0;
+			vkGetPhysicalDeviceQueueFamilyProperties(phys_device, &queue_count, nullptr);
+
+			// Get Queues
+			std::vector<VkQueueFamilyProperties> queue_props(queue_count);
+			vkGetPhysicalDeviceQueueFamilyProperties(phys_device, &queue_count, queue_props.data());
+
+			auto queue_index = 0u;
+			for (const auto &queue_prop : queue_props) {
+				std::cout << "Queue Number " << queue_index++ << std::endl;
+				std::cout << queue_prop << std::endl;
+			}
 		}
 	}
 

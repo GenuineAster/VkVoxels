@@ -54,3 +54,14 @@ std::ostream &operator<<(std::ostream &os, const VkPhysicalDeviceType &type) {
 	}
 	return os;
 }
+
+std::ostream &operator<<(std::ostream &os, const VkQueueFamilyProperties &props) {
+	os << std::boolalpha;
+	os << "\tQueue Count:                  " << props.queueCount         << std::endl;
+	os << "\tValid timestamp bits:         " << props.timestampValidBits << std::endl; 
+	os << "\tSupports graphics operations: " << static_cast<bool>(props.queueFlags | VK_QUEUE_GRAPHICS_BIT) << std::endl;
+	os << "\tSupports  compute operations: " << static_cast<bool>(props.queueFlags | VK_QUEUE_COMPUTE_BIT) << std::endl;
+	os << "\tSupports transfer operations: " << static_cast<bool>(props.queueFlags | VK_QUEUE_TRANSFER_BIT) << std::endl;
+	os << "\tSupports   sparse operations: " << static_cast<bool>(props.queueFlags | VK_QUEUE_SPARSE_BINDING_BIT) << std::endl;
+	return os;
+}
