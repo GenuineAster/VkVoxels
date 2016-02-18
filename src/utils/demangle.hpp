@@ -2,6 +2,9 @@
 
 #include <tuple>
 
+constexpr int create_version(const uint32_t major, const uint32_t minor, const uint32_t patch) noexcept {
+	return (major << 22) | (minor << 12) | (patch);
+}
 
 constexpr std::tuple<int, int, int> get_version(const uint32_t version) noexcept {
 	return std::make_tuple<int, int, int>(

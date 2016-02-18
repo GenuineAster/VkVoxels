@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "debug/pretty_print.hpp"
+#include "utils/demangle.hpp"
 
 int main()
 {
@@ -19,18 +20,30 @@ int main()
 	}
 
 	// Initialize Vulkan
+
+	VkApplicationInfo app_info = {};
+	{
+		app_info.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+		app_info.pNext              = nullptr;
+		app_info.pApplicationName   = "VkVoxels";
+		app_info.applicationVersion = create_version(0, 0, 1);
+		app_info.pEngineName        = "VkVoxels Engine";
+		app_info.engineVersion      = create_version(0, 0, 1);
+		app_info.apiVersion         = create_version(1, 0, 0);
+	}
+
 	VkInstanceCreateInfo create_info = {};
 	{
 		int required_extension_count = 0;
 		auto required_extension_names = glfwGetRequiredInstanceExtensions(&required_extension_count);
 		if (required_extension_names != nullptr) {
-			create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-			create_info.pNext = nullptr;
-			create_info.flags = 0;
-			create_info.pApplicationInfo = nullptr;
-			create_info.enabledLayerCount = 0;
-			create_info.ppEnabledLayerNames = nullptr;
-			create_info.enabledExtensionCount = required_extension_count;
+			create_info.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+			create_info.pNext                   = nullptr;
+			create_info.flags                   = 0;
+			create_info.pApplicationInfo        = &app_info;
+			create_info.enabledLayerCount       = 0;
+			create_info.ppEnabledLayerNames     = nullptr;
+			create_info.enabledExtensionCount   = required_extension_count;
 			create_info.ppEnabledExtensionNames = required_extension_names;
 		} else {
 			std::cout << "Error getting Vulkan extensions from GLFW!" << std::endl;
