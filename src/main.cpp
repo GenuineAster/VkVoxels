@@ -9,10 +9,12 @@
 int main()
 {
 	if ( ! glfwInit()) {
+		std::cout << "Failed to initialize GLFW!" << std::endl;
 		return -1;
 	}
 
 	if ( ! glfwVulkanSupported()) {
+		std::cout << "Vulkan is not supported on this system!" << std::endl;
 		return -2;
 	}
 
@@ -25,12 +27,14 @@ int main()
 			create_info.ppEnabledExtensionNames = required_extension_names;
 			create_info.enabledExtensionCount = required_extension_count;
 		} else {
+			std::cout << "Error getting Vulkan extensions from GLFW!" << std::endl;
 			return -3;
 		}
 	}
 
 	VkInstance instance;
 	if (vkCreateInstance(&create_info, nullptr, &instance) != VK_SUCCESS) {
+		std::cout << "Error creating Vulkan instance!" << std::endl;
 		return -4;
 	}
 
