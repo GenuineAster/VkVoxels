@@ -15,12 +15,19 @@ std::string get_version_string(const uint32_t version) {
 
 std::ostream &operator<<(std::ostream &os, const VkPhysicalDeviceProperties &props) {
 	os << std::setiosflags( std::ios_base::showbase );
-	os << "\tDevice ID:      " << std::setw(20) << std::hex << props.deviceID              << std::endl;
-	os << "\tVendor ID:      " << std::setw(20) << std::hex << props.vendorID              << std::endl;
-	os << "\tDevice Name:    " << std::setw(20) << props.deviceName                        << std::endl;
-	os << "\tDevice Type:    " << std::setw(20) << props.deviceType                        << std::endl;
-	os << "\tAPI Version:    " << std::setw(20) << get_version_string(props.apiVersion)    << std::endl;
-	os << "\tDriver Version: " << std::setw(20) << get_version_string(props.driverVersion) << std::endl;
+	os << "\tDevice ID:               " << std::hex << props.deviceID              << std::endl;
+	os << "\tVendor ID:               " << std::hex << props.vendorID              << std::endl;
+	os << "\tDevice Name:             " << props.deviceName                        << std::endl;
+	os << "\tDevice Type:             " << props.deviceType                        << std::endl;
+	os << "\tAPI Version:             " << get_version_string(props.apiVersion)    << std::endl;
+	os << "\tDriver Version:          " << get_version_string(props.driverVersion) << std::endl;
+	os << props.limits;
+	return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const VkPhysicalDeviceLimits &limits) {
+	os << std::dec;
+	os << "\tMax framebuffer size:    " << limits.maxFramebufferWidth << 'x' << limits.maxFramebufferHeight << std::endl;
 	return os;
 }
 
