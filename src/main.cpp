@@ -24,8 +24,14 @@ int main()
 		int required_extension_count = 0;
 		auto required_extension_names = glfwGetRequiredInstanceExtensions(&required_extension_count);
 		if (required_extension_names != nullptr) {
-			create_info.ppEnabledExtensionNames = required_extension_names;
+			create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+			create_info.pNext = nullptr;
+			create_info.flags = 0;
+			create_info.pApplicationInfo = nullptr;
+			create_info.enabledLayerCount = 0;
+			create_info.ppEnabledLayerNames = nullptr;
 			create_info.enabledExtensionCount = required_extension_count;
+			create_info.ppEnabledExtensionNames = required_extension_names;
 		} else {
 			std::cout << "Error getting Vulkan extensions from GLFW!" << std::endl;
 			return -3;
