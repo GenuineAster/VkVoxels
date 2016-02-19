@@ -32,19 +32,19 @@ int main()
 		app_info.apiVersion         = create_version(1, 0, 0);
 	}
 
-	VkInstanceCreateInfo create_info = {};
+	VkInstanceCreateInfo instance_create_info = {};
 	{
 		int required_extension_count = 0;
 		auto required_extension_names = glfwGetRequiredInstanceExtensions(&required_extension_count);
 		if (required_extension_names != nullptr) {
-			create_info.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-			create_info.pNext                   = nullptr;
-			create_info.flags                   = 0;
-			create_info.pApplicationInfo        = &app_info;
-			create_info.enabledLayerCount       = 0;
-			create_info.ppEnabledLayerNames     = nullptr;
-			create_info.enabledExtensionCount   = required_extension_count;
-			create_info.ppEnabledExtensionNames = required_extension_names;
+			instance_create_info.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+			instance_create_info.pNext                   = nullptr;
+			instance_create_info.flags                   = 0;
+			instance_create_info.pApplicationInfo        = &app_info;
+			instance_create_info.enabledLayerCount       = 0;
+			instance_create_info.ppEnabledLayerNames     = nullptr;
+			instance_create_info.enabledExtensionCount   = required_extension_count;
+			instance_create_info.ppEnabledExtensionNames = required_extension_names;
 		} else {
 			std::cout << "Error getting Vulkan extensions from GLFW!" << std::endl;
 			return -3;
@@ -52,19 +52,21 @@ int main()
 	}
 
 	VkInstance instance;
-	if (vkCreateInstance(&create_info, nullptr, &instance) != VK_SUCCESS) {
+	if (vkCreateInstance(&instance_create_info, nullptr, &instance) != VK_SUCCESS) {
 		std::cout << "Error creating Vulkan instance!" << std::endl;
 		return -4;
 	}
 
+	std::vector<VkPhysicalDevice> phys_devices;
+	std::vector<std::vector<VkQueueFamilyProperties>> phys_queue_families;
 	// List available devices
 	{
 		// Get device count
 		uint32_t phys_device_count = 0;
-		vkEnumeratePhysicalDevices(instance, &phys_device_count, NULL);
+		vkEnumeratePhysicalDevices(instance, &phys_device_count, nullptr);
 
 		// Get devices
-		std::vector<VkPhysicalDevice> phys_devices{phys_device_count};
+		phys_devices.resize(phys_device_count);
 		vkEnumeratePhysicalDevices(instance, &phys_device_count, phys_devices.data());
 
 		// Iterate over devices
@@ -93,6 +95,49 @@ int main()
 		}
 	}
 
+	if (phys_devices.empty()) {
+		std::cout << "Could not find any physical devices!" << std::endl;
+		return -5;
+	}
+
+	// Create the logical Vulkan device
+	VkDevice device;
+	{
+		const float queue_priorities[] = {1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f};
+		VkDeviceQueueCreateInfo queue_create_info = {};
+		{
+			queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queue_create_info.pNext = nullptr;
+			queue_create_info.flags = 0;
+			queue_create_info.queueFamilyIndex = 0;
+			queue_create_info.queueCount = 8;
+			queue_create_info.pQueuePriorities = queue_priorities;
+		}
+
+		VkPhysicalDeviceFeatures phys_device_features;
+		vkGetPhysicalDeviceFeatures(phys_devices[0], &phys_device_features);
+
+		VkDeviceCreateInfo device_create_info = {};
+		{
+			device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+			device_create_info.pNext = nullptr;
+			device_create_info.flags = 0;
+			device_create_info.queueCreateInfoCount = 1;
+			device_create_info.pQueueCreateInfos = &queue_create_info;
+			device_create_info.enabledLayerCount = 0;
+			device_create_info.ppEnabledLayerNames = nullptr;
+			device_create_info.enabledExtensionCount = 0;
+			device_create_info.ppEnabledExtensionNames = nullptr;
+			device_create_info.pEnabledFeatures = &phys_device_features;
+		}
+
+		if (vkCreateDevice(phys_devices[0], &device_create_info, nullptr, &device) != VK_SUCCESS) {
+			std::cout << "Failed to create logical device!" << std::endl;
+			return -6;
+		}
+	}
+
+	vkDestroyDevice(device, nullptr);
 	vkDestroyInstance(instance, nullptr);
 	glfwTerminate();
 	return 0;
