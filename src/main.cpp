@@ -7,6 +7,8 @@
 #include "debug/pretty_print.hpp"
 #include "utils/demangle.hpp"
 
+constexpr std::size_t QUEUE_COUNT = 8;
+
 int main()
 {
 	if ( ! glfwInit()) {
@@ -120,7 +122,7 @@ int main()
 			queue_create_info.pNext            = nullptr;
 			queue_create_info.flags            = 0;
 			queue_create_info.queueFamilyIndex = 0;
-			queue_create_info.queueCount       = 8;
+			queue_create_info.queueCount       = QUEUE_COUNT;
 			queue_create_info.pQueuePriorities = queue_priorities;
 		}
 
@@ -144,6 +146,16 @@ int main()
 		if (vkCreateDevice(*phys_dev, &device_create_info, nullptr, &device) != VK_SUCCESS) {
 			std::cout << "Failed to create logical device!" << std::endl;
 			return -7;
+		}
+	}
+
+
+	// Get logical device queues
+	std::vector<VkQueue> queues(QUEUE_COUNT);
+	{
+		uint32_t queue_index = 0;
+		for (auto &queue : queues) {
+			vkGetDeviceQueue(device, 0, queue_index++, &queue);
 		}
 	}
 
