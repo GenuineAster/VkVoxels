@@ -103,7 +103,7 @@ int main()
 	// Create the logical Vulkan device
 	VkDevice device;
 	{
-		const float queue_priorities[] = {1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f};
+		const float queue_priorities[] = {1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f};
 		VkDeviceQueueCreateInfo queue_create_info = {};
 		{
 			queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
