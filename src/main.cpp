@@ -1,5 +1,5 @@
-#include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
 
 #include <vector>
 #include <iostream>
@@ -58,7 +58,6 @@ int main()
 	}
 
 	std::vector<VkPhysicalDevice> phys_devices;
-	std::vector<std::vector<VkQueueFamilyProperties>> phys_queue_families;
 	// List available devices
 	{
 		// Get device count
@@ -100,6 +99,17 @@ int main()
 		return -5;
 	}
 
+	VkPhysicalDevice *phys_dev = nullptr;
+	for (auto &physical_device : phys_devices) {
+		if (glfwGetPhysicalDevicePresentationSupport(instance, physical_device, 0) == GLFW_TRUE) {
+			phys_dev = &physical_device;
+		}
+	}
+	if (phys_dev == nullptr) {
+		std::cout << "Could not find device capable of presenting images!" << std::endl;
+		return -6;
+	}
+
 	// Create the logical Vulkan device
 	VkDevice device;
 	{
@@ -131,9 +141,9 @@ int main()
 			device_create_info.pEnabledFeatures        = &phys_device_features;
 		}
 
-		if (vkCreateDevice(phys_devices[0], &device_create_info, nullptr, &device) != VK_SUCCESS) {
+		if (vkCreateDevice(*phys_dev, &device_create_info, nullptr, &device) != VK_SUCCESS) {
 			std::cout << "Failed to create logical device!" << std::endl;
-			return -6;
+			return -7;
 		}
 	}
 
