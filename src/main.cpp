@@ -106,11 +106,11 @@ int main()
 		const float queue_priorities[] = {1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f};
 		VkDeviceQueueCreateInfo queue_create_info = {};
 		{
-			queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queue_create_info.pNext = nullptr;
-			queue_create_info.flags = 0;
+			queue_create_info.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queue_create_info.pNext            = nullptr;
+			queue_create_info.flags            = 0;
 			queue_create_info.queueFamilyIndex = 0;
-			queue_create_info.queueCount = 8;
+			queue_create_info.queueCount       = 8;
 			queue_create_info.pQueuePriorities = queue_priorities;
 		}
 
@@ -119,16 +119,16 @@ int main()
 
 		VkDeviceCreateInfo device_create_info = {};
 		{
-			device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-			device_create_info.pNext = nullptr;
-			device_create_info.flags = 0;
-			device_create_info.queueCreateInfoCount = 1;
-			device_create_info.pQueueCreateInfos = &queue_create_info;
-			device_create_info.enabledLayerCount = 0;
-			device_create_info.ppEnabledLayerNames = nullptr;
-			device_create_info.enabledExtensionCount = 0;
+			device_create_info.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+			device_create_info.pNext                   = nullptr;
+			device_create_info.flags                   = 0;
+			device_create_info.queueCreateInfoCount    = 1;
+			device_create_info.pQueueCreateInfos       = &queue_create_info;
+			device_create_info.enabledLayerCount       = 0;
+			device_create_info.ppEnabledLayerNames     = nullptr;
+			device_create_info.enabledExtensionCount   = 0;
 			device_create_info.ppEnabledExtensionNames = nullptr;
-			device_create_info.pEnabledFeatures = &phys_device_features;
+			device_create_info.pEnabledFeatures        = &phys_device_features;
 		}
 
 		if (vkCreateDevice(phys_devices[0], &device_create_info, nullptr, &device) != VK_SUCCESS) {
