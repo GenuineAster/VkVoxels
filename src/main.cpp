@@ -16,6 +16,8 @@ int main()
 		return -1;
 	}
 
+	glfwSetErrorCallback([](int, const char* msg){std::cout << msg << std::endl;});
+
 	if ( ! glfwVulkanSupported()) {
 		std::cout << "Vulkan is not supported on this system!" << std::endl;
 		return -2;
@@ -159,6 +161,25 @@ int main()
 		}
 	}
 
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	GLFWwindow *window = glfwCreateWindow(640, 480, "VkVoxels", nullptr, nullptr);
+	if ( ! window) {
+		std::cout << "Failed to create window!" << std::endl;
+		return -8;
+	}
+
+	VkSurfaceKHR surface;
+	if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
+		std::cout << "Failed to create window surface!" << std::endl;
+		return -9;
+	}
+
+	while ( ! glfwWindowShouldClose(window)) {
+		glfwPollEvents();
+	}
+
+	vkDestroySurfaceKHR(instance, surface, nullptr);
+	glfwDestroyWindow(window);
 	vkDestroyDevice(device, nullptr);
 	vkDestroyInstance(instance, nullptr);
 	glfwTerminate();
