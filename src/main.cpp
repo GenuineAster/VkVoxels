@@ -168,10 +168,89 @@ int main()
 		return -8;
 	}
 
+	// Create command pool
+	VkCommandPool command_pool;
+	{
+		VkCommandPoolCreateInfo pool_create_info = {};
+		pool_create_info.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		pool_create_info.pNext            = nullptr;
+		pool_create_info.flags            = 0;
+		pool_create_info.queueFamilyIndex = 0;
+
+		if (vkCreateCommandPool(device, &pool_create_info, nullptr, &command_pool) != VK_SUCCESS) {
+			std::cout << "Failed to create command pool!" << std::endl;
+			return -9;
+		}
+	}
+
+	// Allocate command buffers from command pool
+	VkCommandBuffer command_buffer;
+	{
+		VkCommandBufferAllocateInfo buffer_alloc_info = {};
+		buffer_alloc_info.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		buffer_alloc_info.pNext              = nullptr;
+		buffer_alloc_info.commandPool        = command_pool;
+		buffer_alloc_info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		buffer_alloc_info.commandBufferCount = 1;
+		if (vkAllocateCommandBuffers(device, &buffer_alloc_info, &command_buffer) != VK_SUCCESS) {
+			std::cout << "Failed to create command buffers!" << std::endl;
+			return -10;
+		}
+	}
+
+	// Record commands into command buffer
+	{
+		VkCommandBufferBeginInfo buffer_begin_info = {};
+		{
+			buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			buffer_begin_info.pNext            = nullptr;
+			buffer_begin_info.flags            = 0;
+			buffer_begin_info.pInheritanceInfo = nullptr;
+		}
+		if (vkBeginCommandBuffer(command_buffer, &buffer_begin_info) != VK_SUCCESS) {
+			std::cout << "Failed to begin command buffer recording!" << std::endl;
+			return -11;
+		}
+
+		{
+
+		}
+
+		if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) {
+			std::cout << "Error recording command buffer!" << std::endl;
+			return -12;
+		}
+	}
+
+	// Submit command buffer for execution
+	{
+		VkSubmitInfo submit_info = {};
+		{
+			submit_info.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submit_info.pNext                = nullptr;
+			submit_info.waitSemaphoreCount   = 0;
+			submit_info.pWaitSemaphores      = nullptr;
+			submit_info.pWaitDstStageMask    = nullptr;
+			submit_info.commandBufferCount   = 1;
+			submit_info.pCommandBuffers      = &command_buffer;
+			submit_info.signalSemaphoreCount = 0;
+			submit_info.pSignalSemaphores    = nullptr;
+		}
+		
+		if (vkQueueSubmit(queues[0], 1, &submit_info, VK_NULL_HANDLE) != VK_SUCCESS) {
+			std::cout << "Error submitting work to queue!" << std::endl;
+			return -13;
+		}
+	}
+
+	// Wait for queue to finish execution
+	vkQueueWaitIdle(queues[0]);
+
+	// Create window surface
 	VkSurfaceKHR surface;
 	if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
 		std::cout << "Failed to create window surface!" << std::endl;
-		return -9;
+		return -14;
 	}
 
 	while ( ! glfwWindowShouldClose(window)) {
@@ -179,6 +258,9 @@ int main()
 	}
 
 	vkDestroySurfaceKHR(instance, surface, nullptr);
+
+	vkFreeCommandBuffers(device, command_pool, 1, &command_buffer);
+	vkDestroyCommandPool(device, command_pool, nullptr);
 	glfwDestroyWindow(window);
 	vkDestroyDevice(device, nullptr);
 	vkDestroyInstance(instance, nullptr);
